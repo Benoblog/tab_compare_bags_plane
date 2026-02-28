@@ -1,51 +1,48 @@
 import streamlit as st
 import pandas as pd
 
-# 1. Configuration de la page
+# 1. Configuration
 st.set_page_config(layout="wide", page_title="Comparatif Housses de Vélo")
-
 st.title("🚲 Comparateur interactif de housses de vélo pour l'avion")
-st.markdown("Utilisez les filtres ci-dessous pour comparer les modèles selon vos besoins (Poids, Compatibilité, Maintien...).")
+st.markdown("Utilisez les filtres ci-dessous pour comparer les modèles selon vos besoins.")
 
-# 2. Chargement des données
+# 2. Fonction de chargement "Blindée"
 @st.cache_data
 def load_data():
-    # Le fameux combo gagnant pour lire votre fichier Excel exporté
-    df = pd.read_csv("tab_comparatif.csv", sep=";", encoding="latin-1", on_bad_lines="skip")
+    # On laisse Pandas deviner le séparateur (sep=None) 
+    # et on essaie d'abord l'encodage classique
+    try:
+        df = pd.read_csv("tab_comparatif.csv", sep=None, engine="python", encoding="utf-8")
+    except Exception:
+        # Si ça plante (format Excel français), on utilise l'encodage européen
+        df = pd.read_csv("tab_comparatif.csv", sep=None, engine="python", encoding="latin-1")
     
-    # Nettoyage des noms de colonnes (au cas où il y ait des espaces cachés)
-    df.columns = df.columns.str.strip()
-    
-    # Conversion en texte pour éviter que Streamlit ne plante sur les virgules des notes
-    df = df.astype(str) 
-    
-    # Remplacement des cases vides par du vrai vide (au lieu de "nan")
-    df = df.replace("nan", "") 
-    
+    # Nettoyage global
+    df = df.astype(str).replace("nan", "")
     return df
 
-# C'EST LA LIGNE QUI MANQUAIT : on lance la fonction et on crée le tableau "df" !
 df = load_data()
 
-# 3. Création des filtres (Boutons / Multi-sélection)
+# 3. L'astuce magique : on prend la 1ère colonne dynamiquement sans l'appeler "Critère"
+col_critere = df.columns[0]
+
 st.sidebar.header("🎯 Filtres de recherche")
 
-# Sélection des critères (les lignes de votre CSV)
-tous_les_criteres = df['Critère'].dropna().unique().tolist()
+# On liste tous les critères de cette première colonne
+tous_les_criteres = df[col_critere].dropna().unique().tolist()
+
+# Création du menu déroulant (avec les 3 premiers critères sélectionnés par défaut pour éviter les erreurs)
 criteres_selectionnes = st.sidebar.multiselect(
     "Quels critères sont importants pour vous ?",
     options=tous_les_criteres,
-    default=["Compatibilité Route / VTT", "Poids / risque de supplément bagage", "Maintien interne / stabilité"]
+    default=tous_les_criteres[:3] 
 )
 
-# Filtrer le tableau selon les critères choisis
-df_filtre = df[df['Critère'].isin(criteres_selectionnes)]
+# 4. On filtre et on affiche
+df_filtre = df[df[col_critere].isin(criteres_selectionnes)]
 
-# 4. Affichage du tableau interactif
 st.dataframe(
     df_filtre,
     use_container_width=True,
     hide_index=True
 )
-
-st.markdown("*(Faites défiler vers la droite pour voir tous les modèles et les notes)*")
