@@ -10,24 +10,27 @@ st.markdown("Utilisez les filtres ci-dessous pour comparer les modèles selon vo
 # 2. Chargement des données
 @st.cache_data
 def load_data():
-    # LE COMBO FINAL : sep=";" ET encoding="latin-1"
+    # Le fameux combo gagnant pour lire votre fichier Excel exporté
     df = pd.read_csv("tab_comparatif.csv", sep=";", encoding="latin-1", on_bad_lines="skip")
     
-    # On nettoie les espaces invisibles des colonnes
+    # Nettoyage des noms de colonnes (au cas où il y ait des espaces cachés)
     df.columns = df.columns.str.strip()
     
-    # On convertit tout en texte pour l'affichage
+    # Conversion en texte pour éviter que Streamlit ne plante sur les virgules des notes
     df = df.astype(str) 
     
-    # On masque les "nan" (cases vides)
+    # Remplacement des cases vides par du vrai vide (au lieu de "nan")
     df = df.replace("nan", "") 
     
     return df
 
+# C'EST LA LIGNE QUI MANQUAIT : on lance la fonction et on crée le tableau "df" !
+df = load_data()
+
 # 3. Création des filtres (Boutons / Multi-sélection)
 st.sidebar.header("🎯 Filtres de recherche")
 
-# Sélection des critères (qui sont les lignes de votre CSV actuel)
+# Sélection des critères (les lignes de votre CSV)
 tous_les_criteres = df['Critère'].dropna().unique().tolist()
 criteres_selectionnes = st.sidebar.multiselect(
     "Quels critères sont importants pour vous ?",
