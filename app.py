@@ -11,7 +11,7 @@ st.markdown("Utilisez les filtres ci-dessous pour comparer les modèles selon vo
 @st.cache_data
 def load_data():
     # Remplacez par le nom exact de votre fichier CSV
-    df = pd.read_csv("tab_comparatif.csv", sep=",", encoding="utf-8-sig", on_bad_lines="skip")
+    df = pd.read_csv("tab_comparatif.csv", sep=",", encoding="latin-1", on_bad_lines="skip")
     return df
 
 df = load_data()
