@@ -15,7 +15,7 @@ def load_data():
         df = pd.read_csv("tab_comparatif.csv", sep=None, engine="python", encoding="utf-8")
     except Exception:
         # Si ça plante (format Excel français), on utilise l'encodage européen
-        df = pd.read_csv("tab_comparatif.csv", sep=None, engine="python", encoding="latin-1")
+        df = pd.read_csv("tab_comparatif.csv", sep=None, engine="python", encoding="utf-8")
     
     # Nettoyage global
     df = df.astype(str).replace("nan", "")
