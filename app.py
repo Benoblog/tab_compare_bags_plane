@@ -10,11 +10,19 @@ st.markdown("Utilisez les filtres ci-dessous pour comparer les modèles selon vo
 # 2. Chargement des données
 @st.cache_data
 def load_data():
-    # Remplacez par le nom exact de votre fichier CSV
-    df = pd.read_csv("tab_comparatif.csv", sep=",", encoding="latin-1", on_bad_lines="skip")
+    # LE COMBO FINAL : sep=";" ET encoding="latin-1"
+    df = pd.read_csv("tab_comparatif.csv", sep=";", encoding="latin-1", on_bad_lines="skip")
+    
+    # On nettoie les espaces invisibles des colonnes
+    df.columns = df.columns.str.strip()
+    
+    # On convertit tout en texte pour l'affichage
+    df = df.astype(str) 
+    
+    # On masque les "nan" (cases vides)
+    df = df.replace("nan", "") 
+    
     return df
-
-df = load_data()
 
 # 3. Création des filtres (Boutons / Multi-sélection)
 st.sidebar.header("🎯 Filtres de recherche")
